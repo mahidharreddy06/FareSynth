@@ -3,6 +3,7 @@
 [![Python](https://img.shields.io/badge/Python-3.13+-3776AB.svg?style=flat&logo=python&logoColor=white)](https://www.python.org/)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.11-EE4C2C.svg?style=flat&logo=pytorch&logoColor=white)](https://pytorch.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688.svg?style=flat&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-GitHub%20Pages-brightgreen.svg)](https://mahidharreddy06.github.io/FareSynth/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 FareSynth AI is a synthetic airline fare and booking time-series generator designed for dynamic pricing model experimentation, revenue management stress-testing, and yield optimization. The system is implemented using **TimeGAN** (Time-series Generative Adversarial Networks) in PyTorch, with empirical statistical validation and a production-grade FastAPI microservice.
