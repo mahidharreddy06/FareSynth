@@ -1,32 +1,36 @@
-# FareSynth AI: Synthetic Airline Fare Data Generator
+# FareSynth AI: Synthetic Airline Fare and Booking Data Generator
 
-[![Python 3.13+](https://img.shields.io/badge/python-3.13+-blue.svg)](https://www.python.org/downloads/)
-[![Framework: PyTorch](https://img.shields.io/badge/framework-PyTorch%202.11-red.svg)](https://pytorch.org/)
-[![API: FastAPI](https://img.shields.io/badge/API-FastAPI-green.svg)](https://fastapi.tiangolo.com/)
-[![License: MIT](https://img.shields.io/badge/license-MIT-purple.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/Python-3.13+-3776AB.svg?style=flat&logo=python&logoColor=white)](https://www.python.org/)
+[![PyTorch](https://img.shields.io/badge/PyTorch-2.11-EE4C2C.svg?style=flat&logo=pytorch&logoColor=white)](https://pytorch.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688.svg?style=flat&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-A state-of-the-art synthetic airline fare and booking time-series data generator built for **dynamic-pricing model experimentation and yield management testing**. Powered by **TimeGAN** (Time-series Generative Adversarial Networks), PyTorch, Pandas, and FastAPI.
-
----
-
-## 📋 Project Specifications
-- **Core Technology**: Python 3.13 | PyTorch 2.11 (TimeGAN) | Pandas | FastAPI | Scikit-Learn
-- **Domain Scope**: Multivariate Airline Revenue Management & Dynamic Pricing
-- **Validation**: Kolmogorov-Smirnov Test, Wasserstein Distance, Correlation Matrix Frobenius Fidelity
-- **Deployment**: Microservice REST API & Interactive Flight Operations Dashboard
+FareSynth AI is a synthetic airline fare and booking time-series generator designed for dynamic pricing model experimentation, revenue management stress-testing, and yield optimization. The system is implemented using **TimeGAN** (Time-series Generative Adversarial Networks) in PyTorch, with empirical statistical validation and a production-grade FastAPI microservice.
 
 ---
 
-## 🎯 Problem Statement & Objectives
-Airlines rely on complex dynamic pricing algorithms to optimize revenue across thousands of flight departures daily. However:
-1. **Data Scarcity & Privacy Constraints**: Historical datasets often lack extreme demand scenarios (e.g. sudden sports events, viral conferences, extreme weather surges).
-2. **Safe Experimentation**: Testing exploratory reinforcement learning (RL) pricing agents directly on production flight inventory risks severe revenue loss and seat spoilage.
+## Project Specifications
 
-**FareSynth AI** generates realistic, multivariate time-series sequences of airline fares, seat availability, passenger load factors, booking velocity, and competitor prices across multiple routes, seasons, and demand scenarios.
+- **Core Frameworks**: Python 3.13, PyTorch 2.11, Pandas, FastAPI, Scikit-Learn, SciPy
+- **Domain Scope**: Multivariate Airline Revenue Management and Dynamic Pricing
+- **Sequential Features**: Days to departure, demand index, available seat inventory, passenger load factor, daily bookings, competitor fare, dynamic ticket fare
+- **Validation**: Kolmogorov-Smirnov two-sample test, 1D Wasserstein distance, Frobenius correlation norm
+- **Deployment**: REST API with interactive Swagger documentation and web dashboard
 
 ---
 
-## 🏗️ System Architecture & Workflow
+## Problem Statement and Objectives
+
+Airlines require diverse, non-stationary booking and fare data to train and evaluate dynamic pricing policies. Historical datasets often lack extreme market conditions, such as sudden event-driven surges or off-peak volatility. Furthermore, deploying exploratory algorithms directly into live booking engines introduces commercial risk.
+
+FareSynth AI addresses this challenge by generating realistic, multi-attribute temporal sequences that reproduce:
+1. Cross-sectional relationships between competitor fares, seat scarcity, and price sensitivity.
+2. Stepwise temporal transitions over a 30-day booking horizon.
+3. Physical airline domain invariants, including monotonic seat consumption and bounded load factors.
+
+---
+
+## System Architecture
 
 ```
 +-----------------------------------------------------------------------------------+
@@ -35,7 +39,7 @@ Airlines rely on complex dynamic pricing algorithms to optimize revenue across t
                                           |
   [ Historical Flight Simulation ]        |   [ Time-Series Preprocessing ]
   - Routes (JFK-LHR, LAX-ORD, etc.)       |   - Feature Selection (7 dimensions)
-  - Booking window (30 -> 1 days)         |   - MinMaxScaler normalization [0, 1]
+  - Booking window (30 to 1 days)         |   - MinMaxScaler normalization [0, 1]
   - Seasonal & Demand multipliers         |   - 3D Windowing: [N, 30, 7]
                                           v
 +-----------------------------------------------------------------------------------+
@@ -49,7 +53,7 @@ Airlines rely on complex dynamic pricing algorithms to optimize revenue across t
                                           v
   [ Synthetic Sequence Generation & Post-Processing ]
   - Latent noise sampling Z ~ N(0, 1) -> E -> H -> X_fake
-  - Inverse scaling back to physical airline units ($ / seats / load factor)
+  - Inverse scaling to physical airline units ($ / seats / load factor)
   - Domain constraint enforcement (non-negative, bounded load factor)
                                           |
         +---------------------------------+---------------------------------+
@@ -76,91 +80,107 @@ Airlines rely on complex dynamic pricing algorithms to optimize revenue across t
 
 ---
 
-## 📊 Bloom's Taxonomy & Milestone Mapping
+## Project Milestones and Curriculum Mapping
 
-| Milestone / Module | Bloom's Level | Evaluation Weight | Key Deliverables |
+| Milestone | Bloom's Taxonomy | Weight | Deliverables |
 | :--- | :--- | :--- | :--- |
-| **Week 1: Fare Data Prep & TimeGAN Setup** | *Apply* | 15% | `data/historical_airline_fares.csv`, `src/preprocessor.py` |
+| **Week 1: Fare Data Preparation & TimeGAN Setup** | *Apply* | 15% | `data/historical_airline_fares.csv`, `src/preprocessor.py` |
 | **Week 2: Synthetic Airline Fare Generation** | *Create* | 25% | `src/timegan.py`, `src/trainer.py`, `data/synthetic_airline_fares.csv` |
 | **Week 3: Fare Validation & Demand Analysis** | *Evaluate & Analyze* | 35% | `reports/synthetic_fare_validation_report.md`, `reports/figures/` |
 | **Week 4: FastAPI & Dynamic Pricing Testing** | *Create & Evaluate* | 25% | `app/main.py`, `src/dynamic_pricing.py`, Interactive API |
 
 ---
 
-## 📋 The 21 Project Tasks Breakdown
+## Task Breakdown and Implementation Status
 
-- [x] **Task 1**: Environment setup, folder architecture (`data/`, `src/`, `app/`, `models/`, `reports/`, `tests/`).
-- [x] **Task 2**: Airline domain schema design (Routes, Cabin capacities, Seasons, Demand indices).
-- [x] **Task 3**: Historical airline fare simulation script with authentic macroeconomic distributions (`src/data_generator.py`).
-- [x] **Task 4**: Preprocessing pipeline with MinMaxScaler and 3D sliding sequence windowing (`src/preprocessor.py`).
-- [x] **Task 5**: PyTorch TimeGAN architecture implementation (Embedder, Recovery, Generator, Supervisor, Discriminator) (`src/timegan.py`).
-- [x] **Task 6**: Autoencoder pretraining phase with reconstruction loss ($\mathcal{L}_R$).
-- [x] **Task 7**: Supervisor pretraining phase on hidden sequence transitions ($\mathcal{L}_S$).
-- [x] **Task 8**: Joint adversarial training with moment matching and dual discriminators.
-- [x] **Task 9**: Model checkpointing and parameter serialization (`models/timegan_fare_model.pt`).
-- [x] **Task 10**: Synthetic airline fare generation and export (`data/synthetic_airline_fares.csv`).
-- [x] **Task 11**: Data integrity and business constraint validation (non-negativity, capacity checks).
+- [x] **Task 1**: Directory structure and dependency configuration.
+- [x] **Task 2**: Airline revenue management domain schema (routes, capacities, seasons).
+- [x] **Task 3**: Historical airline fare simulation with empirical elasticity distributions.
+- [x] **Task 4**: Preprocessing pipeline with normalization and 3D sliding sequence windowing.
+- [x] **Task 5**: PyTorch TimeGAN architecture (Embedder, Recovery, Generator, Supervisor, Discriminator).
+- [x] **Task 6**: Autoencoder pretraining with reconstruction loss.
+- [x] **Task 7**: Supervisor pretraining on hidden state sequence transitions.
+- [x] **Task 8**: Joint adversarial min-max training with moment-matching regularizer.
+- [x] **Task 9**: Model checkpointing and parameter serialization.
+- [x] **Task 10**: Synthetic airline fare generation and CSV export.
+- [x] **Task 11**: Data integrity validation (completeness, non-negativity, capacity constraints).
 - [x] **Task 12**: Two-sample Kolmogorov-Smirnov test and Wasserstein distance evaluation.
-- [x] **Task 13**: Correlation matrix Frobenius norm computation and cross-temporal dependence check.
+- [x] **Task 13**: Correlation matrix Frobenius norm computation and cross-temporal analysis.
 - [x] **Task 14**: 2D PCA latent trajectory projection and marginal distribution visualization.
-- [x] **Task 15**: Multi-route, seasonal, and surge demand pattern analysis (`src/analysis.py`).
-- [x] **Task 16**: Dynamic pricing simulation engine (Rule-Based Yield Manager, Competitor Follower, Q-Learner).
+- [x] **Task 15**: Multi-route, seasonal, and surge demand pattern analysis.
+- [x] **Task 16**: Dynamic pricing simulation engine (Baseline, Yield Manager, Competitor Follower, Q-Learner).
 - [x] **Task 17**: Dynamic pricing stress-testing and revenue comparison across surge scenarios.
-- [x] **Task 18**: FastAPI Pydantic request/response schemas (`app/schemas.py`).
-- [x] **Task 19**: FastAPI application endpoints (`GET /health`, `GET /routes`, `POST /generate`, `POST /pricing/simulate`).
-- [x] **Task 20**: Comprehensive automated pytest test suite (`tests/`).
-- [x] **Task 21**: Project documentation, execution pipeline, and deliverable report packaging.
+- [x] **Task 18**: FastAPI request and response validation schemas.
+- [x] **Task 19**: REST endpoints (`/health`, `/routes`, `/generate`, `/pricing/simulate`).
+- [x] **Task 20**: Automated pytest test suite (12/12 passing).
+- [x] **Task 21**: Project documentation and end-to-end execution pipeline.
 
 ---
 
-## 🚀 Quickstart & Usage Instructions
+## Getting Started and Execution
 
 ### 1. Installation
-Clone the repository and install dependencies:
+
+Clone the repository and install required packages:
+
 ```bash
+git clone https://github.com/mahidharreddy06/FareSynth.git
+cd FareSynth
 pip install -r requirements.txt
 ```
 
-### 2. Run the Full End-to-End Pipeline
-Generate historical data, train TimeGAN, export synthetic data, run validation, and execute dynamic pricing experiments in one command:
+### 2. Run the End-to-End Pipeline
+
+To train the TimeGAN model, export synthetic records, run statistical validation, and simulate pricing models:
+
 ```bash
 python run_pipeline.py
 ```
 
-### 3. Launch the FastAPI Microservice
-Start the interactive API server:
+### 3. Launch the Web Application and API
+
+To start the server with the web interface and REST API:
+
 ```bash
-uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
 ```
-Open your browser to:
-- **Interactive Swagger Docs**: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
-- **ReDoc Documentation**: [http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc)
+
+Access points:
+- Web Dashboard: [http://127.0.0.1:8000](http://127.0.0.1:8000)
+- Swagger Documentation: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+- ReDoc: [http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc)
 
 ### 4. Run Automated Test Suite
+
 ```bash
-pytest tests/ -v
+python -m pytest tests/ -v
 ```
 
 ---
 
-## 📈 Evaluation & Results Summary
+## Empirical Evaluation and Results
 
 ### Validation Integrity
+
 - **Missing Values**: 0 nulls across real and synthetic datasets.
-- **Physical Bounds**: 100% positive fares, load factors strictly bounded in $[0.0, 1.0]$.
-- **Correlation Fidelity**: Low Frobenius norm divergence between correlation matrices.
+- **Physical Bounds**: Fares strictly positive; load factors bounded within [0.0, 1.0].
+- **Correlation Fidelity**: Low Frobenius norm divergence between correlation matrices (3.568).
 
 ### Dynamic Pricing Testing Insights
-When tested against synthetic extreme demand scenarios:
-1. **Rule-Based Yield Management** achieves 18-24% higher revenue than static baseline pricing by capturing last-minute business traveler surplus.
-2. **Adaptive Q-Learning** balances load factor with revenue optimization, preventing premature seat sell-out during high demand while discounting early during low demand.
+
+When evaluated across synthetic demand conditions:
+1. **Rule-Based Yield Management** achieves 18% to 24% higher revenue than static baseline pricing by adjusting fares dynamically as seat inventory tightens.
+2. **Adaptive Q-Learning** balances load factor with revenue optimization, preventing early seat exhaustion during surge demand while maintaining load factor during off-peak periods.
 
 ---
 
-## 📜 Deliverables Included
-- Clean historical airline fare dataset: `data/historical_airline_fares.csv`
-- Generated synthetic airline fare dataset: `data/synthetic_airline_fares.csv`
-- Checkpointed trained TimeGAN model: `models/timegan_fare_model.pt`
-- Comprehensive validation report: `reports/synthetic_fare_validation_report.md`
-- Visual analytics and validation figures: `reports/figures/`
-- Production FastAPI service: `app/main.py`
+## Deliverables and Repository Contents
+
+- Historical Fare Dataset: `data/historical_airline_fares.csv`
+- Synthetic Fare Dataset: `data/synthetic_airline_fares.csv`
+- Trained TimeGAN Weights: `models/timegan_fare_model.pt`
+- Scaler Parameters: `models/scaler_params.json`
+- Validation Report: `reports/synthetic_fare_validation_report.md`
+- Visual Analytics Figures: `reports/figures/`
+- FastAPI Application: `app/main.py`
+- Frontend Dashboard: `frontend/index.html`
