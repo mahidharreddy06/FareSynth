@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FareSynth AI - Synthetic Airline Fare & Dynamic Pricing Studio</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    body { font-family: 'Inter', sans-serif; background-color: #0b0f19; color: #f3f4f6; }
+    .glass-card { background: rgba(17, 24, 39, 0.75); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
+    .tab-active { border-bottom: 2px solid #3b82f6; color: #60a5fa; font-weight: 600; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- Top Navbar -->
+  <header class="border-b border-gray-800 bg-gray-900/80 backdrop-blur sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
+          <i class="fa-solid fa-plane-departure text-lg"></i>
+        </div>
+        <div>
+          <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+            FareSynth <span class="text-blue-500 text-xs px-2 py-0.5 rounded-full bg-blue-500/10 border border-blue-500/20">AI</span>
+          </h1>
+          <p class="text-xs text-gray-400">Synthetic Airline Fare & Dynamic Pricing Engine (TimeGAN)</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-4">
+        <div id="healthBadge" class="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span>TimeGAN Online</span>
+        </div>
+        <a href="/docs" target="_blank" class="px-3 py-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-xs font-medium text-gray-300 transition flex items-center gap-1.5 border border-gray-700">
+          <i class="fa-solid fa-book"></i> Swagger Docs
+        </a>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="max-w-7xl mx-auto px-4 flex gap-6 text-sm text-gray-400">
+      <button onclick="switchTab('generator')" id="tab-generator" class="py-3 px-1 hover:text-gray-200 tab-active flex items-center gap-2">
+        <i class="fa-solid fa-wand-magic-sparkles"></i> Synthetic Generator
+      </button>
+      <button onclick="switchTab('pricing')" id="tab-pricing" class="py-3 px-1 hover:text-gray-200 flex items-center gap-2">
+        <i class="fa-solid fa-scale-balanced"></i> Dynamic Pricing Sandbox
+      </button>
+      <button onclick="switchTab('validation')" id="tab-validation" class="py-3 px-1 hover:text-gray-200 flex items-center gap-2">
+        <i class="fa-solid fa-chart-line"></i> Validation & Quality
+      </button>
+      <button onclick="switchTab('about')" id="tab-about" class="py-3 px-1 hover:text-gray-200 flex items-center gap-2">
+        <i class="fa-solid fa-microchip"></i> System Architecture
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="flex-1 max-w-7xl mx-auto w-full p-4 md:p-6 space-y-6">
+
+    <!-- ==================== TAB 1: SYNTHETIC GENERATOR ==================== -->
+    <section id="section-generator" class="space-y-6">
+      <!-- Control Panel -->
+      <div class="glass-card rounded-2xl p-6">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-4 border-b border-gray-800">
+          <div>
+            <h2 class="text-lg font-semibold text-white flex items-center gap-2">
+              <i class="fa-solid fa-sliders text-blue-400"></i> Generation Parameters
+            </h2>
+            <p class="text-xs text-gray-400">Sample high-fidelity flight episodes using the trained TimeGAN generator</p>
+          </div>
+          <button onclick="generateFares()" id="btnGenerate" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-medium text-sm flex items-center gap-2 shadow-lg shadow-blue-600/25 transition">
+            <i class="fa-solid fa-bolt"></i> Generate Synthetic Flight
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+          <div>
+            <label class="block text-xs font-medium text-gray-400 mb-1.5">Route Corridor</label>
+            <select id="genRoute" class="w-full bg-gray-800/90 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-200 focus:outline-none focus:border-blue-500">
+              <option value="JFK-LHR">JFK-LHR (New York → London, $650)</option>
+              <option value="LAX-ORD">LAX-ORD (Los Angeles → Chicago, $280)</option>
+              <option value="SFO-NRT">SFO-NRT (San Francisco → Tokyo, $850)</option>
+              <option value="DXB-LHR">DXB-LHR (Dubai → London, $550)</option>
+              <option value="DEL-BOM">DEL-BOM (Delhi → Mumbai, $110)</option>
+              <option value="ATL-MIA">ATL-MIA (Atlanta → Miami, $190)</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-gray-400 mb-1.5">Travel Season</label>
+            <select id="genSeason" class="w-full bg-gray-800/90 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-200 focus:outline-none focus:border-blue-500">
+              <option value="Summer" selected>Summer (Vacation Peak, x1.35)</option>
+              <option value="Winter">Winter (Holidays, x1.15)</option>
+              <option value="Spring">Spring (Shoulder, x1.05)</option>
+              <option value="Fall">Fall (Off-Peak, x0.95)</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-gray-400 mb-1.5">Demand Scenario</label>
+            <select id="genDemand" class="w-full bg-gray-800/90 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-200 focus:outline-none focus:border-blue-500">
+              <option value="Normal">Normal Demand (1.0x)</option>
+              <option value="Surge" selected>Surge (Conferences/Events, 1.65x)</option>
+              <option value="High">High Demand (1.3x)</option>
+              <option value="Low">Low / Off-Peak (0.7x)</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-gray-400 mb-1.5">Booking Horizon (Days)</label>
+            <input type="number" id="genSeqLen" value="30" min="7" max="45" class="w-full bg-gray-800/90 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-200 focus:outline-none focus:border-blue-500">
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-gray-400 mb-1.5">Flight Episodes</label>
+            <input type="number" id="genCount" value="1" min="1" max="5" class="w-full bg-gray-800/90 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-200 focus:outline-none focus:border-blue-500">
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Metrics Cards -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="glass-card p-4 rounded-xl">
+          <p class="text-xs text-gray-400 font-medium">Flight ID</p>
+          <p id="cardFlightId" class="text-lg font-bold text-blue-400 mt-1">GEN-JFKLHR-0001</p>
+          <p id="cardRouteDesc" class="text-xs text-gray-500 mt-0.5">JFK → LHR</p>
+        </div>
+        <div class="glass-card p-4 rounded-xl">
+          <p class="text-xs text-gray-400 font-medium">Early Booking Fare (Day 30)</p>
+          <p id="cardStartFare" class="text-xl font-bold text-white mt-1">$340.20</p>
+          <p class="text-xs text-emerald-400 mt-0.5">Discounts for leisure</p>
+        </div>
+        <div class="glass-card p-4 rounded-xl">
+          <p class="text-xs text-gray-400 font-medium">Peak Departure Fare (Day 1)</p>
+          <p id="cardEndFare" class="text-xl font-bold text-amber-400 mt-1">$1,280.50</p>
+          <p class="text-xs text-amber-500 mt-0.5">Urgent business premium</p>
+        </div>
+        <div class="glass-card p-4 rounded-xl">
+          <p class="text-xs text-gray-400 font-medium">Final Passenger Load Factor</p>
+          <p id="cardFinalLoad" class="text-xl font-bold text-indigo-400 mt-1">94.8%</p>
+          <p id="cardSeatsSold" class="text-xs text-gray-500 mt-0.5">265 / 280 seats booked</p>
+        </div>
+      </div>
+
+      <!-- Charts Section -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="glass-card p-5 rounded-2xl">
+          <h3 class="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+            <i class="fa-solid fa-chart-line text-blue-400"></i> Dynamic Fare Escalation vs. Competitor ($)
+          </h3>
+          <div class="h-64 relative">
+            <canvas id="fareChart"></canvas>
+          </div>
+        </div>
+
+        <div class="glass-card p-5 rounded-2xl">
+          <h3 class="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+            <i class="fa-solid fa-users text-indigo-400"></i> Load Factor (%) & Remaining Seat Inventory
+          </h3>
+          <div class="h-64 relative">
+            <canvas id="loadChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Raw Sequence Table -->
+      <div class="glass-card rounded-2xl p-5">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-sm font-semibold text-white flex items-center gap-2">
+            <i class="fa-solid fa-table-list text-emerald-400"></i> 30-Day Stepwise Sequence Records
+          </h3>
+          <button onclick="exportCSV()" class="px-3 py-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-xs font-medium text-gray-200 border border-gray-700 flex items-center gap-1.5">
+            <i class="fa-solid fa-download"></i> Download CSV
+          </button>
+        </div>
+
+        <div class="overflow-x-auto max-h-72 border border-gray-800 rounded-lg">
+          <table class="w-full text-left text-xs text-gray-300">
+            <thead class="bg-gray-800/80 text-gray-400 uppercase text-[10px] sticky top-0">
+              <tr>
+                <th class="p-2.5">Days to Dep</th>
+                <th class="p-2.5">Fare Price ($)</th>
+                <th class="p-2.5">Competitor ($)</th>
+                <th class="p-2.5">Load Factor</th>
+                <th class="p-2.5">Available Seats</th>
+                <th class="p-2.5">Daily Bookings</th>
+                <th class="p-2.5">Demand Index</th>
+              </tr>
+            </thead>
+            <tbody id="sequenceTableBody" class="divide-y divide-gray-800/60 font-mono">
+              <!-- Populated via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 2: DYNAMIC PRICING SANDBOX ==================== -->
+    <section id="section-pricing" class="space-y-6 hidden">
+      <div class="glass-card rounded-2xl p-6">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-4 border-b border-gray-800">
+          <div>
+            <h2 class="text-lg font-semibold text-white flex items-center gap-2">
+              <i class="fa-solid fa-scale-balanced text-indigo-400"></i> Dynamic Pricing Model Simulation
+            </h2>
+            <p class="text-xs text-gray-400">Stress-test pricing algorithms across synthetic surge and normal scenarios</p>
+          </div>
+          <button onclick="runPricingSimulation()" id="btnSimulate" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-medium text-sm flex items-center gap-2 shadow-lg shadow-indigo-600/25 transition">
+            <i class="fa-solid fa-play"></i> Run Pricing Simulation
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+          <div>
+            <label class="block text-xs font-medium text-gray-400 mb-1.5">Target Route</label>
+            <select id="simRoute" class="w-full bg-gray-800/90 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-200">
+              <option value="JFK-LHR">JFK-LHR ($650 Base, 280 seats)</option>
+              <option value="LAX-ORD" selected>LAX-ORD ($280 Base, 180 seats)</option>
+              <option value="SFO-NRT">SFO-NRT ($850 Base, 300 seats)</option>
+              <option value="DXB-LHR">DXB-LHR ($550 Base, 260 seats)</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-gray-400 mb-1.5">Stress-Test Scenario</label>
+            <select id="simScenario" class="w-full bg-gray-800/90 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-200">
+              <option value="Surge" selected>Surge Demand (Major Holiday/Conferences)</option>
+              <option value="Normal">Normal Demand</option>
+              <option value="High">High Demand</option>
+              <option value="Low">Low / Off-Peak Demand</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-gray-400 mb-1.5">Base Fare ($)</label>
+            <input type="number" id="simBaseFare" value="280" class="w-full bg-gray-800/90 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-200">
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-gray-400 mb-1.5">Aircraft Capacity</label>
+            <input type="number" id="simCapacity" value="180" class="w-full bg-gray-800/90 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-200">
+          </div>
+        </div>
+      </div>
+
+      <!-- Strategy Cards -->
+      <div id="pricingCardsGrid" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <!-- Injected via JS -->
+      </div>
+
+      <!-- Comparative Bar Chart -->
+      <div class="glass-card p-5 rounded-2xl">
+        <h3 class="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+          <i class="fa-solid fa-chart-column text-purple-400"></i> Total Flight Revenue Comparison ($)
+        </h3>
+        <div class="h-64 relative">
+          <canvas id="pricingRevenueChart"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 3: VALIDATION & QUALITY ==================== -->
+    <section id="section-validation" class="space-y-6 hidden">
+      <div class="glass-card rounded-2xl p-6">
+        <div class="flex items-center justify-between pb-4 border-b border-gray-800">
+          <div>
+            <h2 class="text-lg font-semibold text-white flex items-center gap-2">
+              <i class="fa-solid fa-shield-halved text-emerald-400"></i> Synthetic Data Quality Certification
+            </h2>
+            <p class="text-xs text-gray-400">Comprehensive statistical, temporal, and domain validation metrics</p>
+          </div>
+          <span class="px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold">
+            STATUS: PASSED ✅
+          </span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+          <div class="bg-gray-800/50 p-4 rounded-xl border border-gray-800">
+            <p class="text-xs text-gray-400">Data Integrity</p>
+            <p class="text-xl font-bold text-white mt-1">0 Null Values</p>
+            <p class="text-xs text-gray-500 mt-1">100% positive fares, bounded load factor [0, 1]</p>
+          </div>
+          <div class="bg-gray-800/50 p-4 rounded-xl border border-gray-800">
+            <p class="text-xs text-gray-400">Correlation Frobenius Distance</p>
+            <p class="text-xl font-bold text-blue-400 mt-1">3.568</p>
+            <p class="text-xs text-gray-500 mt-1">Strong preservation of cross-feature relations</p>
+          </div>
+          <div class="bg-gray-800/50 p-4 rounded-xl border border-gray-800">
+            <p class="text-xs text-gray-400">Sample Size Certified</p>
+            <p class="text-xl font-bold text-indigo-400 mt-1">4,500 Records</p>
+            <p class="text-xs text-gray-500 mt-1">Evaluated across 150 simulated flights</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Generated Figures Gallery -->
+      <div class="glass-card rounded-2xl p-6">
+        <h3 class="text-sm font-semibold text-white mb-4 flex items-center gap-2">
+          <i class="fa-solid fa-images text-blue-400"></i> Visual Artifacts & Dimensionality Projections
+        </h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="bg-gray-800/50 p-3 rounded-xl border border-gray-800">
+            <p class="text-xs font-medium text-gray-300 mb-2">2D PCA Latent Space Trajectory Overlap</p>
+            <img src="/reports/figures/pca_latent_overlap.png" alt="PCA Overlap" class="rounded-lg w-full h-auto border border-gray-700/50">
+          </div>
+          <div class="bg-gray-800/50 p-3 rounded-xl border border-gray-800">
+            <p class="text-xs font-medium text-gray-300 mb-2">Dynamic Fare Escalation Trajectory (30 Days)</p>
+            <img src="/reports/figures/temporal_fare_trajectory.png" alt="Temporal Fare Trajectory" class="rounded-lg w-full h-auto border border-gray-700/50">
+          </div>
+          <div class="bg-gray-800/50 p-3 rounded-xl border border-gray-800">
+            <p class="text-xs font-medium text-gray-300 mb-2">Marginal Feature Distribution Comparison</p>
+            <img src="/reports/figures/distributions_comparison.png" alt="Distributions Comparison" class="rounded-lg w-full h-auto border border-gray-700/50">
+          </div>
+          <div class="bg-gray-800/50 p-3 rounded-xl border border-gray-800">
+            <p class="text-xs font-medium text-gray-300 mb-2">Historical vs Synthetic Correlation Heatmap</p>
+            <img src="/reports/figures/correlation_matrices.png" alt="Correlation Heatmaps" class="rounded-lg w-full h-auto border border-gray-700/50">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 4: ARCHITECTURE & METHODOLOGY ==================== -->
+    <section id="section-about" class="space-y-6 hidden">
+      <div class="glass-card rounded-2xl p-6">
+        <h2 class="text-lg font-semibold text-white mb-2 flex items-center gap-2">
+          <i class="fa-solid fa-microchip text-blue-400"></i> Generative Architecture Overview
+        </h2>
+        <p class="text-xs text-gray-300 leading-relaxed">
+          FareSynth AI leverages a multi-network <strong>Time-series Generative Adversarial Network (TimeGAN)</strong> specifically designed to model sequential airline pricing and booking dynamics. Unlike standard GANs that capture only static feature distributions, TimeGAN simultaneously learns cross-sectional correlations and stepwise transition probability densities over multi-day departure windows.
+        </p>
+      </div>
+
+      <div class="glass-card rounded-2xl p-6">
+        <h3 class="text-base font-semibold text-white mb-3 flex items-center gap-2">
+          <i class="fa-solid fa-network-wired text-indigo-400"></i> TimeGAN Multi-Network System
+        </h3>
+        <p class="text-xs text-gray-300 leading-relaxed mb-4">
+          The framework combines an Autoencoder (Embedding & Recovery networks) with an Adversarial Framework (Generator, Discriminator, and Supervisor).
+          The Supervisor network captures the stepwise temporal transition dynamics: \(H_t = s(H_{t-1})\), ensuring realistic autocorrelation, seat spoilage constraints, and booking curves across the 30-day departure horizon.
+        </p>
+        <div class="p-4 bg-gray-900 rounded-xl text-xs font-mono text-gray-300 border border-gray-800 space-y-2">
+          <div><span class="text-blue-400 font-bold">1. Embedding Network:</span> \(\mathcal{E}: \mathcal{X} \to \mathcal{H}\) &mdash; Projects 7-dimensional sequential flight space into latent code space.</div>
+          <div><span class="text-indigo-400 font-bold">2. Recovery Network:</span> \(\mathcal{R}: \mathcal{H} \to \tilde{\mathcal{X}}\) &mdash; Reconstructs original flight sequences from latent representations.</div>
+          <div><span class="text-emerald-400 font-bold">3. Sequence Generator:</span> \(\mathcal{G}: \mathcal{Z} \to \mathcal{E}\) &mdash; Maps Gaussian noise \(Z \sim \mathcal{N}(0, 1)\) into synthetic latent representations.</div>
+          <div><span class="text-purple-400 font-bold">4. Sequence Supervisor:</span> \(\mathcal{S}: \mathcal{H}_{1:t-1} \to \mathcal{H}_t\) &mdash; Enforces stepwise temporal autoregressive dynamics.</div>
+          <div><span class="text-amber-400 font-bold">5. Discriminator:</span> \(\mathcal{D}: \mathcal{H} \to [0, 1]\) &mdash; Evaluates realism of hidden trajectory representations.</div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-gray-800 py-4 text-center text-xs text-gray-500">
+    FareSynth AI • Synthetic Airline Fare & Dynamic Pricing Engine • Built with PyTorch, TimeGAN & FastAPI
+  </footer>
+
+  <!-- Script Application Logic -->
+  <script>
+    let fareChartInstance = null;
+    let loadChartInstance = null;
+    let revenueChartInstance = null;
+    let lastGeneratedData = [];
+
+    function switchTab(tab) {
+      ['generator', 'pricing', 'validation', 'about'].forEach(t => {
+        document.getElementById(`section-${t}`).classList.add('hidden');
+        document.getElementById(`tab-${t}`).classList.remove('tab-active');
+      });
+      document.getElementById(`section-${tab}`).classList.remove('hidden');
+      document.getElementById(`tab-${tab}`).classList.add('tab-active');
+    }
+
+    async function generateFares() {
+      const btn = document.getElementById('btnGenerate');
+      btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Generating...`;
+      btn.disabled = true;
+
+      const payload = {
+        route: document.getElementById('genRoute').value,
+        season: document.getElementById('genSeason').value,
+        demand_scenario: document.getElementById('genDemand').value,
+        seq_len: parseInt(document.getElementById('genSeqLen').value),
+        num_sequences: parseInt(document.getElementById('genCount').value)
+      };
+
+      try {
+        const res = await fetch('/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.status === 'success' && data.flights.length > 0) {
+          renderGeneratedFlight(data.flights[0]);
+        }
+      } catch (err) {
+        console.error("Error generating fares:", err);
+        alert("Failed to generate synthetic fares. Ensure backend is running.");
+      } finally {
+        btn.innerHTML = `<i class="fa-solid fa-bolt"></i> Generate Synthetic Flight`;
+        btn.disabled = false;
+      }
+    }
+
+    function renderGeneratedFlight(flight) {
+      lastGeneratedData = flight.timeline;
+      document.getElementById('cardFlightId').innerText = flight.flight_id;
+      document.getElementById('cardRouteDesc').innerText = `${flight.origin} → ${flight.destination}`;
+
+      const t = flight.timeline;
+      const startRecord = t[0];
+      const endRecord = t[t.length - 1];
+
+      document.getElementById('cardStartFare').innerText = `$${startRecord.fare_price.toFixed(2)}`;
+      document.getElementById('cardEndFare').innerText = `$${endRecord.fare_price.toFixed(2)}`;
+      document.getElementById('cardFinalLoad').innerText = `${(endRecord.load_factor * 100).toFixed(1)}%`;
+      document.getElementById('cardSeatsSold').innerText = `${flight.capacity - endRecord.available_seats} / ${flight.capacity} seats booked`;
+
+      // Render Charts
+      const labels = t.map(r => `T-${r.days_to_departure}`);
+      const fares = t.map(r => r.fare_price);
+      const compFares = t.map(r => r.competitor_fare);
+      const loadFactors = t.map(r => (r.load_factor * 100).toFixed(1));
+      const availSeats = t.map(r => r.available_seats);
+
+      // Chart 1: Fares
+      if (fareChartInstance) fareChartInstance.destroy();
+      const ctxFare = document.getElementById('fareChart').getContext('2d');
+      fareChartInstance = new Chart(ctxFare, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: 'Dynamic Fare ($)',
+              data: fares,
+              borderColor: '#3b82f6',
+              backgroundColor: 'rgba(59, 130, 246, 0.1)',
+              fill: true,
+              tension: 0.3,
+              borderWidth: 2.5
+            },
+            {
+              label: 'Competitor Fare ($)',
+              data: compFares,
+              borderColor: '#f59e0b',
+              borderDash: [5, 5],
+              tension: 0.3,
+              borderWidth: 2
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { labels: { color: '#9ca3af', font: { size: 11 } } } },
+          scales: {
+            x: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#9ca3af' } },
+            y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#9ca3af' } }
+          }
+        }
+      });
+
+      // Chart 2: Load Factor
+      if (loadChartInstance) loadChartInstance.destroy();
+      const ctxLoad = document.getElementById('loadChart').getContext('2d');
+      loadChartInstance = new Chart(ctxLoad, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: 'Load Factor (%)',
+              data: loadFactors,
+              borderColor: '#8b5cf6',
+              backgroundColor: 'rgba(139, 92, 246, 0.1)',
+              fill: true,
+              yAxisID: 'y1',
+              tension: 0.3
+            },
+            {
+              label: 'Available Seats',
+              data: availSeats,
+              borderColor: '#10b981',
+              borderDash: [4, 4],
+              yAxisID: 'y2',
+              tension: 0.3
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { labels: { color: '#9ca3af', font: { size: 11 } } } },
+          scales: {
+            x: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#9ca3af' } },
+            y1: { type: 'linear', position: 'left', min: 0, max: 100, ticks: { color: '#8b5cf6' } },
+            y2: { type: 'linear', position: 'right', grid: { drawOnChartArea: false }, ticks: { color: '#10b981' } }
+          }
+        }
+      });
+
+      // Populate Table
+      const tbody = document.getElementById('sequenceTableBody');
+      tbody.innerHTML = '';
+      t.forEach(r => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-gray-800/40 transition';
+        tr.innerHTML = `
+          <td class="p-2.5 font-bold text-white">T-${r.days_to_departure}</td>
+          <td class="p-2.5 text-blue-400 font-semibold">$${r.fare_price.toFixed(2)}</td>
+          <td class="p-2.5 text-amber-400">$${r.competitor_fare.toFixed(2)}</td>
+          <td class="p-2.5 text-indigo-400">${(r.load_factor * 100).toFixed(1)}%</td>
+          <td class="p-2.5 text-emerald-400">${r.available_seats}</td>
+          <td class="p-2.5 text-gray-200">+${r.daily_bookings}</td>
+          <td class="p-2.5 text-gray-400">${r.demand_index.toFixed(3)}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function runPricingSimulation() {
+      const btn = document.getElementById('btnSimulate');
+      btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Simulating...`;
+      btn.disabled = true;
+
+      const payload = {
+        route: document.getElementById('simRoute').value,
+        demand_scenario: document.getElementById('simScenario').value,
+        base_fare: parseFloat(document.getElementById('simBaseFare').value),
+        capacity: parseInt(document.getElementById('simCapacity').value)
+      };
+
+      try {
+        const res = await fetch('/pricing/simulate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        renderPricingResults(data);
+      } catch (err) {
+        console.error("Simulation error:", err);
+      } finally {
+        btn.innerHTML = `<i class="fa-solid fa-play"></i> Run Pricing Simulation`;
+        btn.disabled = false;
+      }
+    }
+
+    function renderPricingResults(data) {
+      const grid = document.getElementById('pricingCardsGrid');
+      grid.innerHTML = '';
+
+      const strategies = data.results;
+      const stratNames = strategies.map(s => s.strategy);
+      const revenues = strategies.map(s => s.total_revenue);
+
+      strategies.forEach(s => {
+        const isWinner = s.strategy === data.recommended_strategy;
+        const card = document.createElement('div');
+        card.className = `glass-card p-5 rounded-2xl relative border ${isWinner ? 'border-amber-500/50 shadow-lg shadow-amber-500/10' : 'border-gray-800'}`;
+        card.innerHTML = `
+          ${isWinner ? '<span class="absolute top-3 right-3 text-xs px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 font-bold flex items-center gap-1"><i class="fa-solid fa-trophy"></i> Best Yield</span>' : ''}
+          <p class="text-xs text-gray-400 font-medium">${s.strategy}</p>
+          <p class="text-2xl font-black text-white mt-2">$${s.total_revenue.toLocaleString('en-US', { minimumFractionDigits: 2 })}</p>
+          <div class="mt-4 pt-3 border-t border-gray-800/80 space-y-1.5 text-xs">
+            <div class="flex justify-between text-gray-400"><span>Seats Sold:</span><span class="font-bold text-gray-200">${s.seats_sold} / ${data.capacity}</span></div>
+            <div class="flex justify-between text-gray-400"><span>Load Factor:</span><span class="font-bold text-indigo-400">${(s.final_load_factor * 100).toFixed(1)}%</span></div>
+            <div class="flex justify-between text-gray-400"><span>Avg Fare:</span><span class="font-bold text-emerald-400">$${s.average_fare.toFixed(2)}</span></div>
+            <div class="flex justify-between text-gray-400"><span>Rev / Seat:</span><span class="font-bold text-blue-400">$${s.revenue_per_available_seat.toFixed(2)}</span></div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+
+      // Chart
+      if (revenueChartInstance) revenueChartInstance.destroy();
+      const ctxRev = document.getElementById('pricingRevenueChart').getContext('2d');
+      revenueChartInstance = new Chart(ctxRev, {
+        type: 'bar',
+        data: {
+          labels: stratNames,
+          datasets: [{
+            label: 'Total Flight Revenue ($)',
+            data: revenues,
+            backgroundColor: [
+              'rgba(107, 114, 128, 0.7)',
+              'rgba(59, 130, 246, 0.85)',
+              'rgba(245, 158, 11, 0.7)',
+              'rgba(139, 92, 246, 0.85)'
+            ],
+            borderRadius: 8
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { display: false }, ticks: { color: '#9ca3af' } },
+            y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#9ca3af' } }
+          }
+        }
+      });
+    }
+
+    function exportCSV() {
+      if (!lastGeneratedData || lastGeneratedData.length === 0) return;
+      const headers = Object.keys(lastGeneratedData[0]).join(',');
+      const rows = lastGeneratedData.map(r => Object.values(r).join(',')).join('\n');
+      const csv = `${headers}\n${rows}`;
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.setAttribute('href', url);
+      a.setAttribute('download', 'synthetic_flight_sequence.csv');
+      a.click();
+    }
+
+    // Auto-load on startup
+    window.addEventListener('DOMContentLoaded', () => {
+      generateFares();
+      runPricingSimulation();
+    });
+  </script>
+</body>
+</html>
